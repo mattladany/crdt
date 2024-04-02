@@ -2,11 +2,13 @@ package crdt
 
 type GCounter struct {
 	value int
+	clock *VectorClock
 }
 
-func NewGCounter() *GCounter {
+func NewGCounter(clock *VectorClock) *GCounter {
 	counter := new(GCounter)
 	counter.value = 0
+	counter.clock = clock
 	return counter
 }
 
@@ -16,12 +18,12 @@ func (counter *GCounter) Value() int {
 
 func (counter *GCounter) Increment() {
 	counter.value++
+	counter.clock.inc()
 }
 
-func (this *GCounter) Merge(that *GCounter) {
-	value := this.value
-	if that.value > value {
-		value = that.value
+func (counter *GCounter) Merge(that *GCounter) {
+	if counter.value < that.value {
+		counter.value = that.value
 	}
-	this.value = value
+	counter.clock.merge(that.clock)
 }

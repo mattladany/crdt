@@ -2,22 +2,31 @@ package crdt
 
 import "testing"
 
+func initPNCounterClock(name string) *VectorClock {
+	clocks := make(map[string]int)
+	clocks["srv1"] = 0
+	clocks["srv2"] = 0
+	clocks["srv3"] = 0
+	clocks["srv4"] = 0
+	return NewVectorClock(name, clocks)
+}
+
 func TestPNCounterEmptyInitialization(t *testing.T) {
-	counter := NewEmptyPNCounter()
+	counter := NewEmptyPNCounter(initPNCounterClock("srv1"))
 	if counter.Value() != 0 {
 		t.Fatalf("counter value should initialize to 0")
 	}
 }
 
 func TestPNCounterExplicitInitialization(t *testing.T) {
-	counter := NewPNCounter(5)
+	counter := NewPNCounter(5, initPNCounterClock("srv1"))
 	if counter.Value() != 5 {
 		t.Fatalf("counter value should initialize to 5")
 	}
 }
 
 func TestPNCounterSingleIncrement(t *testing.T) {
-	counter := NewEmptyPNCounter()
+	counter := NewEmptyPNCounter(initPNCounterClock("srv1"))
 	counter.Increment()
 	if counter.Value() != 1 {
 		t.Fatalf("counter value should be 1")
@@ -25,7 +34,7 @@ func TestPNCounterSingleIncrement(t *testing.T) {
 }
 
 func TestPNCounterMultiIncrement(t *testing.T) {
-	counter := NewEmptyPNCounter()
+	counter := NewEmptyPNCounter(initPNCounterClock("srv1"))
 	counter.Increment()
 	counter.Increment()
 	counter.Increment()
@@ -36,7 +45,7 @@ func TestPNCounterMultiIncrement(t *testing.T) {
 }
 
 func TestPNCounterSingleDecrement(t *testing.T) {
-	counter := NewEmptyPNCounter()
+	counter := NewEmptyPNCounter(initPNCounterClock("srv1"))
 	counter.Decrement()
 	if counter.Value() != -1 {
 		t.Fatalf("counter value should be -1")
@@ -44,7 +53,7 @@ func TestPNCounterSingleDecrement(t *testing.T) {
 }
 
 func TestPNCounterMultiDecrement(t *testing.T) {
-	counter := NewEmptyPNCounter()
+	counter := NewEmptyPNCounter(initPNCounterClock("srv1"))
 	counter.Decrement()
 	counter.Decrement()
 	counter.Decrement()
@@ -55,7 +64,7 @@ func TestPNCounterMultiDecrement(t *testing.T) {
 }
 
 func TestPNCounterEqualIncrementAndDecrement(t *testing.T) {
-	counter := NewEmptyPNCounter()
+	counter := NewEmptyPNCounter(initPNCounterClock("srv1"))
 	counter.Increment()
 	counter.Increment()
 	counter.Increment()
@@ -70,7 +79,7 @@ func TestPNCounterEqualIncrementAndDecrement(t *testing.T) {
 }
 
 func TestPNCounterPositiveIncrementAndDecrement(t *testing.T) {
-	counter := NewEmptyPNCounter()
+	counter := NewEmptyPNCounter(initPNCounterClock("srv1"))
 	counter.Increment()
 	counter.Increment()
 	counter.Increment()
@@ -89,7 +98,7 @@ func TestPNCounterPositiveIncrementAndDecrement(t *testing.T) {
 }
 
 func TestPNCounterNegativeIncrementAndDecrement(t *testing.T) {
-	counter := NewEmptyPNCounter()
+	counter := NewEmptyPNCounter(initPNCounterClock("srv1"))
 	counter.Increment()
 	counter.Increment()
 	counter.Decrement()
@@ -108,12 +117,12 @@ func TestPNCounterNegativeIncrementAndDecrement(t *testing.T) {
 }
 
 func TestPNCounterMergeIdempotent(t *testing.T) {
-	counter1 := NewEmptyPNCounter()
+	counter1 := NewEmptyPNCounter(initPNCounterClock("srv1"))
 	counter1.Increment()
 	counter1.Increment()
 	counter1.Decrement()
 	counter1.Decrement()
-	counter2 := NewEmptyPNCounter()
+	counter2 := NewEmptyPNCounter(initPNCounterClock("srv2"))
 	counter2.Increment()
 	counter2.Decrement()
 
@@ -131,11 +140,11 @@ func TestPNCounterMergeIdempotent(t *testing.T) {
 }
 
 func TestPNCounterMergePositiveChange(t *testing.T) {
-	counter1 := NewEmptyPNCounter()
+	counter1 := NewEmptyPNCounter(initPNCounterClock("srv1"))
 	counter1.Increment()
 	counter1.Decrement()
 	counter1.Decrement()
-	counter2 := NewEmptyPNCounter()
+	counter2 := NewEmptyPNCounter(initPNCounterClock("srv2"))
 	counter2.Increment()
 	counter2.Increment()
 	counter2.Decrement()
@@ -154,11 +163,11 @@ func TestPNCounterMergePositiveChange(t *testing.T) {
 }
 
 func TestPNCounterMergeNegativeChange(t *testing.T) {
-	counter1 := NewEmptyPNCounter()
+	counter1 := NewEmptyPNCounter(initPNCounterClock("srv1"))
 	counter1.Increment()
 	counter1.Increment()
 	counter1.Decrement()
-	counter2 := NewEmptyPNCounter()
+	counter2 := NewEmptyPNCounter(initPNCounterClock("srv2"))
 	counter2.Increment()
 	counter2.Decrement()
 	counter2.Decrement()
@@ -177,10 +186,10 @@ func TestPNCounterMergeNegativeChange(t *testing.T) {
 }
 
 func TestPNCounterMergeFullChange(t *testing.T) {
-	counter1 := NewEmptyPNCounter()
+	counter1 := NewEmptyPNCounter(initPNCounterClock("srv1"))
 	counter1.Increment()
 	counter1.Decrement()
-	counter2 := NewEmptyPNCounter()
+	counter2 := NewEmptyPNCounter(initPNCounterClock("srv2"))
 	counter2.Increment()
 	counter2.Increment()
 	counter2.Decrement()

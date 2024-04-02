@@ -6,10 +6,10 @@ type PNCounter struct {
 	positives, negatives *GCounter
 }
 
-func NewPNCounter(value int) *PNCounter {
+func NewPNCounter(value int, clock *VectorClock) *PNCounter {
 	counter := new(PNCounter)
-	counter.positives = NewGCounter()
-	counter.negatives = NewGCounter()
+	counter.positives = NewGCounter(clock)
+	counter.negatives = NewGCounter(clock)
 	if value >= 0 {
 		counter.positives.value = value
 	} else {
@@ -18,8 +18,8 @@ func NewPNCounter(value int) *PNCounter {
 	return counter
 }
 
-func NewEmptyPNCounter() *PNCounter {
-	return NewPNCounter(0)
+func NewEmptyPNCounter(clock *VectorClock) *PNCounter {
+	return NewPNCounter(0, clock)
 }
 
 func (counter *PNCounter) Value() int {
