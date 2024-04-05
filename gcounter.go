@@ -1,29 +1,36 @@
 package crdt
 
 type GCounter struct {
-	value int
-	clock *VectorClock
+	node   string
+	values map[string]int
 }
 
-func NewGCounter(clock *VectorClock) *GCounter {
+func NewGCounter(node string, nodes []string) *GCounter {
 	counter := new(GCounter)
-	counter.value = 0
-	counter.clock = clock
+	counter.node = node
+	counter.values = make(map[string]int)
+	for _, n := range nodes {
+		counter.values[n] = 0
+	}
 	return counter
 }
 
 func (counter *GCounter) Value() int {
-	return counter.value
+	sum := 0
+	for _, val := range counter.values {
+		sum += val
+	}
+	return sum
 }
 
 func (counter *GCounter) Increment() {
-	counter.value++
-	counter.clock.inc()
+	counter.values[counter.node]++
 }
 
 func (counter *GCounter) Merge(that *GCounter) {
-	if counter.value < that.value {
-		counter.value = that.value
+	for key, value := range counter.values {
+		if value < that.values[key] {
+			counter.values[key] = that.values[key]
+		}
 	}
-	counter.clock.merge(that.clock)
 }

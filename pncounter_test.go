@@ -2,31 +2,19 @@ package crdt
 
 import "testing"
 
-func initPNCounterClock(name string) *VectorClock {
-	clocks := make(map[string]int)
-	clocks["srv1"] = 0
-	clocks["srv2"] = 0
-	clocks["srv3"] = 0
-	clocks["srv4"] = 0
-	return NewVectorClock(name, clocks)
+func initPNNodes() []string {
+	return []string{"srv1", "srv2", "srv3", "srv4"}
 }
 
 func TestPNCounterEmptyInitialization(t *testing.T) {
-	counter := NewEmptyPNCounter(initPNCounterClock("srv1"))
+	counter := NewPNCounter("srv1", initPNNodes())
 	if counter.Value() != 0 {
 		t.Fatalf("counter value should initialize to 0")
 	}
 }
 
-func TestPNCounterExplicitInitialization(t *testing.T) {
-	counter := NewPNCounter(5, initPNCounterClock("srv1"))
-	if counter.Value() != 5 {
-		t.Fatalf("counter value should initialize to 5")
-	}
-}
-
 func TestPNCounterSingleIncrement(t *testing.T) {
-	counter := NewEmptyPNCounter(initPNCounterClock("srv1"))
+	counter := NewPNCounter("srv1", initPNNodes())
 	counter.Increment()
 	if counter.Value() != 1 {
 		t.Fatalf("counter value should be 1")
@@ -34,7 +22,7 @@ func TestPNCounterSingleIncrement(t *testing.T) {
 }
 
 func TestPNCounterMultiIncrement(t *testing.T) {
-	counter := NewEmptyPNCounter(initPNCounterClock("srv1"))
+	counter := NewPNCounter("srv1", initPNNodes())
 	counter.Increment()
 	counter.Increment()
 	counter.Increment()
@@ -45,7 +33,7 @@ func TestPNCounterMultiIncrement(t *testing.T) {
 }
 
 func TestPNCounterSingleDecrement(t *testing.T) {
-	counter := NewEmptyPNCounter(initPNCounterClock("srv1"))
+	counter := NewPNCounter("srv1", initPNNodes())
 	counter.Decrement()
 	if counter.Value() != -1 {
 		t.Fatalf("counter value should be -1")
@@ -53,7 +41,7 @@ func TestPNCounterSingleDecrement(t *testing.T) {
 }
 
 func TestPNCounterMultiDecrement(t *testing.T) {
-	counter := NewEmptyPNCounter(initPNCounterClock("srv1"))
+	counter := NewPNCounter("srv1", initPNNodes())
 	counter.Decrement()
 	counter.Decrement()
 	counter.Decrement()
@@ -64,7 +52,7 @@ func TestPNCounterMultiDecrement(t *testing.T) {
 }
 
 func TestPNCounterEqualIncrementAndDecrement(t *testing.T) {
-	counter := NewEmptyPNCounter(initPNCounterClock("srv1"))
+	counter := NewPNCounter("srv1", initPNNodes())
 	counter.Increment()
 	counter.Increment()
 	counter.Increment()
@@ -79,17 +67,17 @@ func TestPNCounterEqualIncrementAndDecrement(t *testing.T) {
 }
 
 func TestPNCounterPositiveIncrementAndDecrement(t *testing.T) {
-	counter := NewEmptyPNCounter(initPNCounterClock("srv1"))
+	counter := NewPNCounter("srv1", initPNNodes())
 	counter.Increment()
 	counter.Increment()
 	counter.Increment()
 	counter.Increment()
 	counter.Decrement()
 	counter.Decrement()
-	if counter.positives.value != 4 {
+	if counter.positives.Value() != 4 {
 		t.Fatalf("counter.positives.value should be 4")
 	}
-	if counter.negatives.value != 2 {
+	if counter.negatives.Value() != 2 {
 		t.Fatalf("counter.positives.value should be 2")
 	}
 	if counter.Value() != 2 {
@@ -98,17 +86,17 @@ func TestPNCounterPositiveIncrementAndDecrement(t *testing.T) {
 }
 
 func TestPNCounterNegativeIncrementAndDecrement(t *testing.T) {
-	counter := NewEmptyPNCounter(initPNCounterClock("srv1"))
+	counter := NewPNCounter("srv1", initPNNodes())
 	counter.Increment()
 	counter.Increment()
 	counter.Decrement()
 	counter.Decrement()
 	counter.Decrement()
 	counter.Decrement()
-	if counter.positives.value != 2 {
+	if counter.positives.Value() != 2 {
 		t.Fatalf("counter.positives.value should be 2")
 	}
-	if counter.negatives.value != 4 {
+	if counter.negatives.Value() != 4 {
 		t.Fatalf("counter.positives.value should be 4")
 	}
 	if counter.Value() != -2 {
@@ -116,91 +104,102 @@ func TestPNCounterNegativeIncrementAndDecrement(t *testing.T) {
 	}
 }
 
+func TestPNCounterMergeStatic(t *testing.T) {
+	counter1 := NewPNCounter("srv1", initPNNodes())
+	counter1.Increment()
+	counter1.Increment()
+	counter1.Decrement()
+	counter1.Decrement()
+	counter2 := NewPNCounter("srv2", initPNNodes())
+	counter2.Increment()
+	counter2.Decrement()
+
+	counter1.Merge(counter2)
+
+	if counter1.positives.Value() != 3 {
+		t.Fatalf("counter1.positives.value should be 2")
+	}
+	if counter1.negatives.Value() != 3 {
+		t.Fatalf("counter1.positives.value should be 2")
+	}
+	if counter1.Value() != 0 {
+		t.Fatalf("counter value should be 0")
+	}
+}
+
+func TestPNCounterMergeIncrease(t *testing.T) {
+	counter1 := NewPNCounter("srv1", initPNNodes())
+	counter1.Increment()
+	counter1.Increment()
+	counter1.Decrement()
+	counter1.Decrement()
+	counter2 := NewPNCounter("srv2", initPNNodes())
+	counter2.Increment()
+	counter2.Increment()
+
+	counter1.Merge(counter2)
+
+	if counter1.positives.Value() != 4 {
+		t.Fatalf("counter1.positives.value should be 2")
+	}
+	if counter1.negatives.Value() != 2 {
+		t.Fatalf("counter1.positives.value should be 2")
+	}
+	if counter1.Value() != 2 {
+		t.Fatalf("counter value should be 2")
+	}
+}
+
+func TestPNCounterMergeDecrease(t *testing.T) {
+	counter1 := NewPNCounter("srv1", initPNNodes())
+	counter1.Increment()
+	counter1.Decrement()
+	counter1.Decrement()
+	counter2 := NewPNCounter("srv2", initPNNodes())
+	counter2.Decrement()
+	counter2.Decrement()
+	counter2.Decrement()
+
+	counter1.Merge(counter2)
+
+	if counter1.positives.Value() != 1 {
+		t.Fatalf("counter1.positives.value should be 1")
+	}
+	if counter1.negatives.Value() != 5 {
+		t.Fatalf("counter1.positives.value should be 2")
+	}
+	if counter1.Value() != -4 {
+		t.Fatalf("counter value should be -0")
+	}
+}
+
 func TestPNCounterMergeIdempotent(t *testing.T) {
-	counter1 := NewEmptyPNCounter(initPNCounterClock("srv1"))
+	counter1 := NewPNCounter("srv1", initPNNodes())
 	counter1.Increment()
 	counter1.Increment()
 	counter1.Decrement()
 	counter1.Decrement()
-	counter2 := NewEmptyPNCounter(initPNCounterClock("srv2"))
+	counter2 := NewPNCounter("srv2", initPNNodes())
 	counter2.Increment()
 	counter2.Decrement()
 
 	counter1.Merge(counter2)
 
-	if counter1.positives.value != 2 {
+	if counter1.positives.Value() != 3 {
 		t.Fatalf("counter1.positives.value should be 2")
 	}
-	if counter1.negatives.value != 2 {
+	if counter1.negatives.Value() != 3 {
 		t.Fatalf("counter1.positives.value should be 2")
 	}
 	if counter1.Value() != 0 {
 		t.Fatalf("counter value should be 0")
 	}
-}
-
-func TestPNCounterMergePositiveChange(t *testing.T) {
-	counter1 := NewEmptyPNCounter(initPNCounterClock("srv1"))
-	counter1.Increment()
-	counter1.Decrement()
-	counter1.Decrement()
-	counter2 := NewEmptyPNCounter(initPNCounterClock("srv2"))
-	counter2.Increment()
-	counter2.Increment()
-	counter2.Decrement()
 
 	counter1.Merge(counter2)
-
-	if counter1.positives.value != 2 {
+	if counter1.positives.Value() != 3 {
 		t.Fatalf("counter1.positives.value should be 2")
 	}
-	if counter1.negatives.value != 2 {
-		t.Fatalf("counter1.positives.value should be 2")
-	}
-	if counter1.Value() != 0 {
-		t.Fatalf("counter value should be 0")
-	}
-}
-
-func TestPNCounterMergeNegativeChange(t *testing.T) {
-	counter1 := NewEmptyPNCounter(initPNCounterClock("srv1"))
-	counter1.Increment()
-	counter1.Increment()
-	counter1.Decrement()
-	counter2 := NewEmptyPNCounter(initPNCounterClock("srv2"))
-	counter2.Increment()
-	counter2.Decrement()
-	counter2.Decrement()
-
-	counter1.Merge(counter2)
-
-	if counter1.positives.value != 2 {
-		t.Fatalf("counter1.positives.value should be 2")
-	}
-	if counter1.negatives.value != 2 {
-		t.Fatalf("counter1.positives.value should be 2")
-	}
-	if counter1.Value() != 0 {
-		t.Fatalf("counter value should be 0")
-	}
-}
-
-func TestPNCounterMergeFullChange(t *testing.T) {
-	counter1 := NewEmptyPNCounter(initPNCounterClock("srv1"))
-	counter1.Increment()
-	counter1.Decrement()
-	counter2 := NewEmptyPNCounter(initPNCounterClock("srv2"))
-	counter2.Increment()
-	counter2.Increment()
-	counter2.Decrement()
-	counter2.Decrement()
-
-	counter1.Merge(counter2)
-
-	if counter1.positives.value != 2 {
-		t.Fatalf("counter1.positives.value should be 2")
-	}
-	if counter1.negatives.value != 2 {
+	if counter1.negatives.Value() != 3 {
 		t.Fatalf("counter1.positives.value should be 2")
 	}
 	if counter1.Value() != 0 {

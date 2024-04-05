@@ -2,24 +2,19 @@ package crdt
 
 import "testing"
 
-func initClock(name string) *VectorClock {
-	clocks := make(map[string]int)
-	clocks["srv1"] = 0
-	clocks["srv2"] = 0
-	clocks["srv3"] = 0
-	clocks["srv4"] = 0
-	return NewVectorClock(name, clocks)
+func initNodes() []string {
+	return []string{"srv1", "srv2", "srv3", "srv4"}
 }
 
 func TestGCounterInitialization(t *testing.T) {
-	counter := NewGCounter(initClock("srv1"))
+	counter := NewGCounter("srv1", initNodes())
 	if counter.Value() != 0 {
 		t.Fatalf("counter value should initialize to 0")
 	}
 }
 
 func TestGCounterSingleIncrement(t *testing.T) {
-	counter := NewGCounter(initClock("srv1"))
+	counter := NewGCounter("srv1", initNodes())
 	counter.Increment()
 	if counter.Value() != 1 {
 		t.Fatalf("counter value should be 1")
@@ -27,7 +22,7 @@ func TestGCounterSingleIncrement(t *testing.T) {
 }
 
 func TestGCounterMultiIncrement(t *testing.T) {
-	counter := NewGCounter(initClock("srv1"))
+	counter := NewGCounter("srv1", initNodes())
 	counter.Increment()
 	counter.Increment()
 	counter.Increment()
@@ -37,26 +32,30 @@ func TestGCounterMultiIncrement(t *testing.T) {
 	}
 }
 
-func TestGCounterMergeStaySame(t *testing.T) {
-	counter1 := NewGCounter(initClock("srv1"))
+func TestGCounterMerge(t *testing.T) {
+	counter1 := NewGCounter("srv1", initNodes())
 	counter1.Increment()
 	counter1.Increment()
-	counter2 := NewGCounter(initClock("srv2"))
+	counter2 := NewGCounter("srv2", initNodes())
 	counter2.Increment()
 	counter1.Merge(counter2)
-	if counter1.Value() != 2 {
-		t.Fatalf("merged counter value should be 2")
+	if counter1.Value() != 3 {
+		t.Fatalf("merged counter value should be 3")
 	}
 }
 
-func TestGCounterMergeChange(t *testing.T) {
-	counter1 := NewGCounter(initClock("srv1"))
+func TestGCounterMergeIdempotent(t *testing.T) {
+	counter1 := NewGCounter("srv1", initNodes())
 	counter1.Increment()
-	counter2 := NewGCounter(initClock("srv2"))
-	counter2.Increment()
+	counter1.Increment()
+	counter2 := NewGCounter("srv2", initNodes())
 	counter2.Increment()
 	counter1.Merge(counter2)
-	if counter1.Value() != 2 {
-		t.Fatalf("merged counter value should be 2")
+	if counter1.Value() != 3 {
+		t.Fatalf("merged counter value should be 3")
+	}
+	counter1.Merge(counter2)
+	if counter1.Value() != 3 {
+		t.Fatalf("merged counter value should be 3")
 	}
 }
