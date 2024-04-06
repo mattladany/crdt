@@ -29,7 +29,7 @@ func TestGSetLookupFalse(t *testing.T) {
 	gset := NewGSet[int]("gset1")
 	gset.Add(5)
 	if gset.Lookup(10) {
-		t.Fatalf("gset lookup should have been true")
+		t.Fatalf("gset lookup should have been false")
 	}
 }
 
