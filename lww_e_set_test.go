@@ -48,7 +48,7 @@ func TestLWWESetValidRemove(t *testing.T) {
 	}
 }
 
-func TestlWWESetInvalidRemove(t *testing.T) {
+func TestLWWESetInvalidRemove(t *testing.T) {
 	set := NewLWWESet[int]("lwweset")
 	set.Remove(5)
 	set.Add(5)
