@@ -2,8 +2,10 @@
 A go implementation of CRDTs
 
 ## To Do's
-
-- MVRegister
+- Add comments
 - Set implementations
-- Node existence check for GCounter::Merge
+    - pn-set
+    - or-set
+- Validation checks
+- Node existence checks/additions
 - Graph implementations
