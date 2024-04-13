@@ -7,14 +7,14 @@ func initPNNodes() []string {
 }
 
 func TestPNCounterEmptyInitialization(t *testing.T) {
-	counter := NewPNCounter("srv1", initPNNodes())
+	counter := NewPNCounter("counter1", "srv1", initPNNodes())
 	if counter.Value() != 0 {
 		t.Fatalf("counter value should initialize to 0")
 	}
 }
 
 func TestPNCounterSingleIncrement(t *testing.T) {
-	counter := NewPNCounter("srv1", initPNNodes())
+	counter := NewPNCounter("counter1", "srv1", initPNNodes())
 	counter.Increment()
 	if counter.Value() != 1 {
 		t.Fatalf("counter value should be 1")
@@ -22,7 +22,7 @@ func TestPNCounterSingleIncrement(t *testing.T) {
 }
 
 func TestPNCounterMultiIncrement(t *testing.T) {
-	counter := NewPNCounter("srv1", initPNNodes())
+	counter := NewPNCounter("counter1", "srv1", initPNNodes())
 	counter.Increment()
 	counter.Increment()
 	counter.Increment()
@@ -33,7 +33,7 @@ func TestPNCounterMultiIncrement(t *testing.T) {
 }
 
 func TestPNCounterSingleDecrement(t *testing.T) {
-	counter := NewPNCounter("srv1", initPNNodes())
+	counter := NewPNCounter("counter1", "srv1", initPNNodes())
 	counter.Decrement()
 	if counter.Value() != -1 {
 		t.Fatalf("counter value should be -1")
@@ -41,7 +41,7 @@ func TestPNCounterSingleDecrement(t *testing.T) {
 }
 
 func TestPNCounterMultiDecrement(t *testing.T) {
-	counter := NewPNCounter("srv1", initPNNodes())
+	counter := NewPNCounter("counter1", "srv1", initPNNodes())
 	counter.Decrement()
 	counter.Decrement()
 	counter.Decrement()
@@ -52,7 +52,7 @@ func TestPNCounterMultiDecrement(t *testing.T) {
 }
 
 func TestPNCounterEqualIncrementAndDecrement(t *testing.T) {
-	counter := NewPNCounter("srv1", initPNNodes())
+	counter := NewPNCounter("counter1", "srv1", initPNNodes())
 	counter.Increment()
 	counter.Increment()
 	counter.Increment()
@@ -67,7 +67,7 @@ func TestPNCounterEqualIncrementAndDecrement(t *testing.T) {
 }
 
 func TestPNCounterPositiveIncrementAndDecrement(t *testing.T) {
-	counter := NewPNCounter("srv1", initPNNodes())
+	counter := NewPNCounter("counter1", "srv1", initPNNodes())
 	counter.Increment()
 	counter.Increment()
 	counter.Increment()
@@ -86,7 +86,7 @@ func TestPNCounterPositiveIncrementAndDecrement(t *testing.T) {
 }
 
 func TestPNCounterNegativeIncrementAndDecrement(t *testing.T) {
-	counter := NewPNCounter("srv1", initPNNodes())
+	counter := NewPNCounter("counter1", "srv1", initPNNodes())
 	counter.Increment()
 	counter.Increment()
 	counter.Decrement()
@@ -105,12 +105,12 @@ func TestPNCounterNegativeIncrementAndDecrement(t *testing.T) {
 }
 
 func TestPNCounterMergeStatic(t *testing.T) {
-	counter1 := NewPNCounter("srv1", initPNNodes())
+	counter1 := NewPNCounter("counter1", "srv1", initPNNodes())
 	counter1.Increment()
 	counter1.Increment()
 	counter1.Decrement()
 	counter1.Decrement()
-	counter2 := NewPNCounter("srv2", initPNNodes())
+	counter2 := NewPNCounter("counter1", "srv2", initPNNodes())
 	counter2.Increment()
 	counter2.Decrement()
 
@@ -128,12 +128,12 @@ func TestPNCounterMergeStatic(t *testing.T) {
 }
 
 func TestPNCounterMergeIncrease(t *testing.T) {
-	counter1 := NewPNCounter("srv1", initPNNodes())
+	counter1 := NewPNCounter("counter1", "srv1", initPNNodes())
 	counter1.Increment()
 	counter1.Increment()
 	counter1.Decrement()
 	counter1.Decrement()
-	counter2 := NewPNCounter("srv2", initPNNodes())
+	counter2 := NewPNCounter("counter1", "srv2", initPNNodes())
 	counter2.Increment()
 	counter2.Increment()
 
@@ -151,11 +151,11 @@ func TestPNCounterMergeIncrease(t *testing.T) {
 }
 
 func TestPNCounterMergeDecrease(t *testing.T) {
-	counter1 := NewPNCounter("srv1", initPNNodes())
+	counter1 := NewPNCounter("counter1", "srv1", initPNNodes())
 	counter1.Increment()
 	counter1.Decrement()
 	counter1.Decrement()
-	counter2 := NewPNCounter("srv2", initPNNodes())
+	counter2 := NewPNCounter("counter1", "srv2", initPNNodes())
 	counter2.Decrement()
 	counter2.Decrement()
 	counter2.Decrement()
@@ -174,12 +174,12 @@ func TestPNCounterMergeDecrease(t *testing.T) {
 }
 
 func TestPNCounterMergeIdempotent(t *testing.T) {
-	counter1 := NewPNCounter("srv1", initPNNodes())
+	counter1 := NewPNCounter("counter1", "srv1", initPNNodes())
 	counter1.Increment()
 	counter1.Increment()
 	counter1.Decrement()
 	counter1.Decrement()
-	counter2 := NewPNCounter("srv2", initPNNodes())
+	counter2 := NewPNCounter("counter1", "srv2", initPNNodes())
 	counter2.Increment()
 	counter2.Decrement()
 
