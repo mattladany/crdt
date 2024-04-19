@@ -1,6 +1,6 @@
 package crdt
 
-// PNCounter is a CvRDT counter that can both increase and decrease in value.
+// PNCounter is a CRDT counter that can both increase and decrease in value.
 type PNCounter struct {
 	name                 string
 	node                 string

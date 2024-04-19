@@ -1,6 +1,6 @@
 package crdt
 
-// GCounter is a CvRDT that can only be incremented.
+// GCounter is a CRDT counter that can only be incremented.
 type GCounter struct {
 	name   string
 	node   string
