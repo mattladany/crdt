@@ -1,6 +1,5 @@
 # crdt
 A go implementation of CRDTs
 
-## To Do's
-- Node existence checks/additions
+## To-Do's
 - Graph implementations

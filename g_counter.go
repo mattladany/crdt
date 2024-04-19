@@ -43,9 +43,13 @@ func (counter *GCounter) Merge(that *GCounter) {
 	if counter.name != that.name {
 		return
 	}
-	for key, value := range counter.values {
-		if value < that.values[key] {
-			counter.values[key] = that.values[key]
+	for key, thatValue := range that.values {
+		if counterValue, exists := counter.values[key]; exists {
+			if counterValue < thatValue {
+				counter.values[key] = thatValue
+			}
+		} else {
+			counter.values[key] = thatValue
 		}
 	}
 }
