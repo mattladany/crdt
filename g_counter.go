@@ -9,7 +9,8 @@ type GCounter struct {
 
 // NewGCounter constructs a GCounter based on the parameters provided.
 // The GCounter will be initialized to a value of 0.
-// The name of the counter is assumed to be unique across the cluster.
+// It is assumed the name of this specific GCounter uniquely identifies this
+// counter throughout the cluster.
 func NewGCounter(name string, node string, nodes []string) *GCounter {
 	counter := new(GCounter)
 	counter.name = name

@@ -27,7 +27,7 @@ func TestLWWRegisterMergeNoChange(t *testing.T) {
 		t.Fatalf("reg.value should be 5, was %d", reg.Value())
 	}
 
-	reg2 := NewLWWRegister("reg2", 0)
+	reg2 := NewLWWRegister("reg1", 0)
 	reg2.Assign(3)
 	reg.Assign(10)
 
@@ -40,7 +40,7 @@ func TestLWWRegisterMergeNoChange(t *testing.T) {
 func TestLWWRegisterMergeChange(t *testing.T) {
 	reg := NewLWWRegister("reg1", 0)
 	reg.Assign(5)
-	reg2 := NewLWWRegister("reg2", 0)
+	reg2 := NewLWWRegister("reg1", 0)
 	time.Sleep(1 * time.Millisecond) // Sleeping to force time increment
 	reg2.Assign(7)
 
@@ -55,7 +55,7 @@ func TestLWWRegisterMergeIdempotence(t *testing.T) {
 	reg := NewLWWRegister("reg1", 0)
 	reg.Assign(5)
 
-	reg2 := NewLWWRegister("reg2", 0)
+	reg2 := NewLWWRegister("reg1", 0)
 	time.Sleep(1 * time.Millisecond) // Sleeping to force time increment
 	reg2.Assign(7)
 
@@ -76,5 +76,19 @@ func TestLWWRegisterMergeIdempotence(t *testing.T) {
 
 	if reg.Value() != 7 {
 		t.Fatalf("reg.value should be 7, was %d", reg.Value())
+	}
+}
+
+func TestLWWRegisterMergeUnmatchedName(t *testing.T) {
+	reg := NewLWWRegister("reg1", 0)
+	reg.Assign(5)
+	reg2 := NewLWWRegister("reg2", 0)
+	time.Sleep(1 * time.Millisecond) // Sleeping to force time increment
+	reg2.Assign(7)
+
+	reg.Merge(reg2) // should be ignored due to mismatched name
+
+	if reg.Value() != 5 {
+		t.Fatalf("reg.value should be 5, was %d", reg.Value())
 	}
 }

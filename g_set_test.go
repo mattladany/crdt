@@ -73,5 +73,24 @@ func TestGSetMergeIdempotent(t *testing.T) {
 	if !gset1.Lookup(10) {
 		t.Fatalf("gset lookup for 10 should have been true after merge")
 	}
+}
 
+func TestGSetMergeUnmatchedName(t *testing.T) {
+	gset1 := NewGSet[int]("gset1")
+	gset1.Add(5)
+	gset2 := NewGSet[int]("gset2")
+	gset2.Add(10)
+
+	if gset1.Lookup(10) {
+		t.Fatalf("gset lookup for 10 should have been false before merge")
+	}
+
+	gset1.Merge(gset2) // Should be no-op due to mismatched name
+
+	if gset1.Size() != 1 {
+		t.Fatalf("gset Size should have been 1 after merge")
+	}
+	if gset1.Lookup(10) {
+		t.Fatalf("gset lookup for 10 should have been false after merge")
+	}
 }

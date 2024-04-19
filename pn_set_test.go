@@ -81,7 +81,7 @@ func TestPNSetMerge(t *testing.T) {
 		t.Fatalf("pnset lookup for 10 should have been false after merge")
 	}
 	if !pnset.Lookup(15) {
-		t.Fatalf("pnset lookup for 10 should have been true after merge")
+		t.Fatalf("pnset lookup for 15 should have been true after merge")
 	}
 }
 
@@ -126,7 +126,7 @@ func TestPNSetMergeIdempotent(t *testing.T) {
 		t.Fatalf("pnset lookup for 10 should have been false after merge")
 	}
 	if !pnset.Lookup(15) {
-		t.Fatalf("pnset lookup for 10 should have been true after merge")
+		t.Fatalf("pnset lookup for 15 should have been true after merge")
 	}
 
 	pnset.Merge(pnset2)
@@ -140,6 +140,34 @@ func TestPNSetMergeIdempotent(t *testing.T) {
 		t.Fatalf("pnset lookup for 10 should have been false after merge")
 	}
 	if !pnset.Lookup(15) {
-		t.Fatalf("pnset lookup for 10 should have been true after merge")
+		t.Fatalf("pnset lookup for 15 should have been true after merge")
+	}
+}
+
+func TestPNSetMergeUnmatchedName(t *testing.T) {
+	pnset := NewPNSet[int]("pnset")
+	pnset.Add(5)
+	pnset2 := NewPNSet[int]("pnset2")
+	pnset2.Add(10)
+	pnset2.Add(15)
+	pnset2.Remove(10)
+
+	if pnset.Lookup(10) {
+		t.Fatalf("pnset lookup for 10 should have been false before merge")
+	}
+	if pnset.Lookup(15) {
+		t.Fatalf("pnset lookup for 15 should have been false before merge")
+	}
+
+	pnset.Merge(pnset2)
+
+	if pnset.Size() != 1 {
+		t.Fatalf("pnset size should have been 1 after merge")
+	}
+	if pnset.Lookup(10) {
+		t.Fatalf("pnset lookup for 10 should have been false after merge")
+	}
+	if pnset.Lookup(15) {
+		t.Fatalf("pnset lookup for 15 should have been false after merge")
 	}
 }

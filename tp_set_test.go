@@ -83,7 +83,6 @@ func TestTPSetMerge(t *testing.T) {
 	if !tpset.Lookup(15) {
 		t.Fatalf("tpset lookup for 10 should have been true after merge")
 	}
-
 }
 
 func TestTPSetMergeIdempotent(t *testing.T) {
@@ -125,5 +124,33 @@ func TestTPSetMergeIdempotent(t *testing.T) {
 	}
 	if !tpset.Lookup(15) {
 		t.Fatalf("tpset lookup for 10 should have been true after merge")
+	}
+}
+
+func TestTPSetMergeUnmatchedName(t *testing.T) {
+	tpset := NewTwoPhaseSet[int]("tpset")
+	tpset.Add(5)
+	tpset2 := NewTwoPhaseSet[int]("tpset2")
+	tpset2.Add(10)
+	tpset2.Add(15)
+	tpset2.Remove(10)
+
+	if tpset.Lookup(10) {
+		t.Fatalf("tpset lookup for 10 should have been false before merge")
+	}
+	if tpset.Lookup(15) {
+		t.Fatalf("tpset lookup for 15 should have been false before merge")
+	}
+
+	tpset.Merge(tpset2)
+
+	if tpset.Size() != 1 {
+		t.Fatalf("tpset size should have been 1 after merge")
+	}
+	if tpset.Lookup(10) {
+		t.Fatalf("tpset lookup for 10 should have been false after merge")
+	}
+	if tpset.Lookup(15) {
+		t.Fatalf("tpset lookup for 10 should have been false after merge")
 	}
 }

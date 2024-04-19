@@ -134,3 +134,39 @@ func TestORSetMergeIdempotent(t *testing.T) {
 		t.Fatalf("orset lookup for 10 should have been true after merge")
 	}
 }
+
+func TestORSetMergeUnmatchedNames(t *testing.T) {
+	orset := NewORSet[int]("orset")
+	orset.Add(5)
+	orset2 := NewORSet[int]("orset2")
+	orset2.Add(10)
+	orset2.Add(15)
+	orset2.Remove(10)
+
+	if orset.Lookup(10) {
+		t.Fatalf("orset lookup for 10 should have been false before merge")
+	}
+	if orset.Lookup(15) {
+		t.Fatalf("orset lookup for 15 should have been false before merge")
+	}
+
+	if orset2.Lookup(10) {
+		t.Fatalf("orset2 lookup for 10 should have been false")
+	}
+	if !orset2.Lookup(15) {
+		t.Fatalf("orset2 lookup for 15 should have been true")
+	}
+
+	orset.Merge(orset2)
+
+	if orset.Size() != 1 {
+		t.Fatalf("orset size should have been 1 after merge, was %d", orset.Size())
+	}
+	if orset.Lookup(10) {
+		t.Fatalf("orset lookup for 10 should have been false after merge")
+	}
+	if orset.Lookup(15) {
+		t.Fatalf("orset lookup for 15 should have been false after merge")
+	}
+
+}

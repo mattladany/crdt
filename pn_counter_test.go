@@ -206,3 +206,26 @@ func TestPNCounterMergeIdempotent(t *testing.T) {
 		t.Fatalf("counter value should be 0")
 	}
 }
+
+func TestPNCounterMergeUnmatchedName(t *testing.T) {
+	counter1 := NewPNCounter("counter1", "srv1", initPNNodes())
+	counter1.Increment()
+	counter1.Increment()
+	counter1.Decrement()
+	counter1.Decrement()
+	counter2 := NewPNCounter("counter2", "srv2", initPNNodes())
+	counter2.Increment()
+	counter2.Increment()
+
+	counter1.Merge(counter2) // should be no-op due to mismatched name
+
+	if counter1.positives.Value() != 2 {
+		t.Fatalf("counter1.positives.value should be 2")
+	}
+	if counter1.negatives.Value() != 2 {
+		t.Fatalf("counter1.positives.value should be 2")
+	}
+	if counter1.Value() != 0 {
+		t.Fatalf("counter value should be 0")
+	}
+}

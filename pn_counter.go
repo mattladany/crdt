@@ -7,7 +7,10 @@ type PNCounter struct {
 	positives, negatives *GCounter
 }
 
-// NewPNCounter constructs a new PNCounter with an initial value of 0.
+// NewPNCounter constructs a new PNCounter with the associated name and an
+// initial value of 0.
+// It is assumed the name of this specific PNCounter uniquely identifies this
+// counter throughout the cluster.
 func NewPNCounter(name string, node string, nodes []string) *PNCounter {
 	counter := new(PNCounter)
 	counter.name = name
