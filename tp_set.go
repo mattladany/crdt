@@ -49,7 +49,7 @@ func (tpset *TwoPhaseSet[T]) Size() int {
 }
 
 // Merge calls Merge on both GSets within this TwoPhaseSet.
-// This is a no-op if tpset.name != that.name.
+// This is an idempotent operation and is a no-op if tpset.name != that.name.
 func (tpset *TwoPhaseSet[T]) Merge(that *TwoPhaseSet[T]) {
 	if tpset.name == that.name {
 		tpset.gset.Merge(that.gset)

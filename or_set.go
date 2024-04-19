@@ -76,7 +76,7 @@ func (orset *ORSet[T]) Size() int {
 //   - Remove all elements from orset.set if all their unique IDs exist within
 //     orset.tombstone
 //
-// This is a no-op if orset.name != that.name.
+// This is an idempotent operation and is a no-op if orset.name != that.name.
 func (orset *ORSet[T]) Merge(that *ORSet[T]) {
 	if orset.name != that.name {
 		return

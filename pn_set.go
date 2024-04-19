@@ -64,7 +64,7 @@ func (pnset *PNSet[T]) Size() int {
 
 // Merge adds all elements in that.set to pnset.set that did not exist
 // previously, and merges the counters for each element that exists in both.
-// This is a no-op if pnset.name != that.name.
+// This is an idempotent operation and is a no-op if pnset.name != that.name.
 func (pnset *PNSet[T]) Merge(that *PNSet[T]) {
 	if pnset.name != that.name {
 		return

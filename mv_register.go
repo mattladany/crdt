@@ -47,6 +47,7 @@ func (reg *MVRegister[T]) Value() map[string]T {
 
 // Merge sets the value of each node's register using a last-writer-wins
 // implementation.
+// This is an idempotent operation.
 func (reg *MVRegister[T]) Merge(that *MVRegister[T]) {
 	for node, subReg := range that.registers {
 		if _, exists := reg.registers[node]; exists {

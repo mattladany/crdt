@@ -38,6 +38,7 @@ func (reg *LWWRegister[T]) Assign(value T) {
 
 // Merge will assign the value and timetamp in that to reg if and only if
 // reg.name == that.name AND reg.timestamp < that.timestamp.
+// This is an idempotent operation.
 func (reg *LWWRegister[T]) Merge(that *LWWRegister[T]) {
 	if reg.name == that.name && reg.timestamp < that.timestamp {
 		reg.value = that.value

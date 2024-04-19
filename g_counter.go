@@ -38,7 +38,7 @@ func (counter *GCounter) Increment() {
 
 // Merge performs an idempotent operation which combines that with counter.
 // The maximum value for each value in values is set to each counter.values.
-// If that.name != counter.name, the merge operation is ignored.
+// This is an idempotent operation and is a no-op if counter.name != that.name.
 func (counter *GCounter) Merge(that *GCounter) {
 	if counter.name != that.name {
 		return

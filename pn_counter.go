@@ -37,7 +37,7 @@ func (counter *PNCounter) Decrement() {
 
 // Merge performs an idempotent operation of which each GCounter in counter is
 // merged with its counterpart in that.
-// This operation will be ignored if that.name != counter.name.
+// This is an idempotent operation and is a no-op if counter.name != that.name.
 func (counter *PNCounter) Merge(that *PNCounter) {
 	if counter.name != that.name {
 		return

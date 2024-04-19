@@ -35,7 +35,7 @@ func (gset *GSet[T]) Size() int {
 }
 
 // Merge adds all elements in that.set to gset.set.
-// This is a no-op if tpset.name != that.name.
+// This is an idempotent operation and is a no-op if gset.name != that.name.
 func (gset *GSet[T]) Merge(that *GSet[T]) {
 	if gset.name == that.name {
 		for key := range that.set {

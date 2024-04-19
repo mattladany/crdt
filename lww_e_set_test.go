@@ -166,3 +166,31 @@ func TestLWWESetMergeIdempotent(t *testing.T) {
 		t.Fatalf("lwweset lookup for 5 should have been true after merge")
 	}
 }
+
+func TestLWWESetMergeUnmatchedName(t *testing.T) {
+	set1 := NewLWWESet[int]("lwweset")
+	set1.Add(5)
+	set2 := NewLWWESet[int]("lwweset2")
+	set2.Add(10)
+	set2.Add(15)
+	set2.Remove(10)
+
+	if set1.Lookup(10) {
+		t.Fatalf("lwweset lookup for 10 should have been false before merge")
+	}
+	if set1.Lookup(15) {
+		t.Fatalf("lwweset lookup for 15 should have been false before merge")
+	}
+
+	set1.Merge(set2)
+
+	if set1.Size() != 1 {
+		t.Fatalf("lwweset size should have been 2 after merge")
+	}
+	if set1.Lookup(10) {
+		t.Fatalf("lwweset lookup for 10 should have been false after merge")
+	}
+	if set1.Lookup(15) {
+		t.Fatalf("lwweset lookup for 10 should have been false after merge")
+	}
+}
