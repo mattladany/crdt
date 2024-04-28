@@ -76,6 +76,35 @@ func TestMVRegisterMergeChange(t *testing.T) {
 	}
 }
 
+func TestMVRegisterMergeAdditionalChange(t *testing.T) {
+	reg := NewMVRegister("mvreg", "node1", 0)
+	reg.Assign(5)
+	if reg.Value()["node1"] != 5 {
+		t.Fatalf("value should be 5")
+	}
+
+	reg2 := NewMVRegister("mvreg", "node2", 0)
+	time.Sleep(50 * time.Millisecond)
+	reg2.Assign(10)
+	reg.Merge(reg2)
+	if reg.Value()["node1"] != 5 {
+		t.Fatalf("reg[node1] should be 5, was %d", reg.Value()["node1"])
+	}
+	if reg.Value()["node2"] != 10 {
+		t.Fatalf("reg[node2] should be 10, was %d", reg.Value()["node2"])
+	}
+
+	time.Sleep(50 * time.Millisecond)
+	reg2.Assign(15)
+	reg.Merge(reg2)
+	if reg.Value()["node1"] != 5 {
+		t.Fatalf("reg[node1] should be 5, was %d", reg.Value()["node1"])
+	}
+	if reg.Value()["node2"] != 15 {
+		t.Fatalf("reg[node2] should be 15, was %d", reg.Value()["node2"])
+	}
+}
+
 func TestMVRegisterMergeIdempotence(t *testing.T) {
 	reg := NewMVRegister("mvreg", "node1", 0)
 	reg.Assign(5)

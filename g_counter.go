@@ -11,14 +11,12 @@ type GCounter struct {
 // The GCounter will be initialized to a value of 0.
 // It is assumed the name of this specific GCounter uniquely identifies this
 // counter throughout the cluster.
-func NewGCounter(name string, node string, nodes []string) *GCounter {
+func NewGCounter(name string, node string) *GCounter {
 	counter := new(GCounter)
 	counter.name = name
 	counter.node = node
 	counter.values = make(map[string]int)
-	for _, n := range nodes {
-		counter.values[n] = 0
-	}
+	counter.values[node] = 0
 	return counter
 }
 

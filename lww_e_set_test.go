@@ -129,6 +129,47 @@ func TestLWWESetMergeWithDelayedAdd(t *testing.T) {
 	}
 }
 
+func TestLWWESetMergeFirstSetAddAndRemoveAfter(t *testing.T) {
+	set1 := NewLWWESet[int]("lwweset")
+
+	set2 := NewLWWESet[int]("lwweset")
+	time.Sleep(10 * time.Millisecond)
+	set2.Add(5)
+	time.Sleep(10 * time.Millisecond)
+	set2.Remove(5)
+	time.Sleep(10 * time.Millisecond)
+	set1.Add(5)
+
+	if set1.Size() != 1 {
+		t.Fatalf("lwweset size should have been 1 before merge")
+	}
+	if !set1.Lookup(5) {
+		t.Fatalf("lwweset lookup for 5 should have been true before merge")
+	}
+
+	set1.Merge(set2)
+
+	if set1.Size() != 1 {
+		t.Fatalf("lwweset size should have been 1 after merge")
+	}
+	if !set1.Lookup(5) {
+		t.Fatalf("lwweset lookup for 5 should have been true after merge")
+	}
+
+	time.Sleep(10 * time.Millisecond)
+	set1.Remove(5)
+
+	set1.Merge(set2)
+
+	if set1.Size() != 0 {
+		t.Fatalf("lwweset size should have been 1 after merge")
+	}
+	if set1.Lookup(5) {
+		t.Fatalf("lwweset lookup for 5 should have been false after merge")
+	}
+
+}
+
 func TestLWWESetMergeIdempotent(t *testing.T) {
 	set1 := NewLWWESet[int]("lwweset")
 	set1.Add(5)

@@ -28,7 +28,7 @@ func (pnset *PNSet[T]) Add(value T) {
 	if counter, exists := pnset.set[value]; exists {
 		counter.Increment()
 	} else {
-		newCounter := NewPNCounter(pnset.name, pnset.name, []string{pnset.name})
+		newCounter := NewPNCounter(pnset.name, pnset.name)
 		newCounter.Increment()
 		pnset.set[value] = newCounter
 	}

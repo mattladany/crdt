@@ -11,12 +11,12 @@ type PNCounter struct {
 // initial value of 0.
 // It is assumed the name of this specific PNCounter uniquely identifies this
 // counter throughout the cluster.
-func NewPNCounter(name string, node string, nodes []string) *PNCounter {
+func NewPNCounter(name string, node string) *PNCounter {
 	counter := new(PNCounter)
 	counter.name = name
 	counter.node = node
-	counter.positives = NewGCounter(name+"_positives", node, nodes)
-	counter.negatives = NewGCounter(name+"_negatives", node, nodes)
+	counter.positives = NewGCounter(name+"_positives", node)
+	counter.negatives = NewGCounter(name+"_negatives", node)
 	return counter
 }
 
