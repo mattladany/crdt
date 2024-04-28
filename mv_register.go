@@ -1,14 +1,13 @@
 package crdt
 
-import "time"
-
 // MVRegister is a CRDT register that holds a registerValue for each node that
 // exists within the cluster.
 // TODO the values of each register here could be a LWWRegister to avoid
 // duplicating logic.
 type MVRegister[T any] struct {
+	name      string
 	node      string
-	registers map[string]registerValue[T]
+	registers map[string]*LWWRegister[T]
 }
 
 // registerValue represents the register of a particular node within the
@@ -18,22 +17,24 @@ type registerValue[T any] struct {
 	timestamp int64
 }
 
-// NewMVRegister constructs a MVRegister with a current state of the known
-// cluster's register values.
-func NewMVRegister[T any](node string, nodes map[string]registerValue[T]) *MVRegister[T] {
+// NewMVRegister constructs a MVRegister with a value for this node set to initialValue.
+// It is assumed the name of this specific MVRegister uniquely identifies this
+// register throughout the cluster.
+func NewMVRegister[T any](name string, node string, initialValue T) *MVRegister[T] {
 	mvRegister := new(MVRegister[T])
+	mvRegister.name = name
 	mvRegister.node = node
-	mvRegister.registers = nodes
+	mvRegister.registers = make(map[string]*LWWRegister[T])
+
+	mvRegister.registers[node] = NewLWWRegister(name, initialValue)
+
 	return mvRegister
 }
 
 // Assign sets the value in the parameter to the value of the register for
 // this node.
 func (reg *MVRegister[T]) Assign(value T) {
-	singleReg := new(registerValue[T])
-	singleReg.value = value
-	singleReg.timestamp = time.Now().UnixNano()
-	reg.registers[reg.node] = *singleReg
+	reg.registers[reg.node] = NewLWWRegister(reg.name, value)
 }
 
 // Value returns a map of node -> value for each node in the cluster.
@@ -47,8 +48,11 @@ func (reg *MVRegister[T]) Value() map[string]T {
 
 // Merge sets the value of each node's register using a last-writer-wins
 // implementation.
-// This is an idempotent operation.
+// This is an idempotent operation and is a no-op if reg.name != that.name.
 func (reg *MVRegister[T]) Merge(that *MVRegister[T]) {
+	if reg.name != that.name {
+		return
+	}
 	for node, subReg := range that.registers {
 		if _, exists := reg.registers[node]; exists {
 			if reg.registers[node].timestamp < subReg.timestamp {

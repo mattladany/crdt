@@ -5,36 +5,18 @@ import (
 	"time"
 )
 
-func initMVRegisterNodes() map[string]registerValue[int] {
-	nodes := make(map[string]registerValue[int])
-	node1 := new(registerValue[int])
-	node1.value = 0
-	node1.timestamp = time.Now().UnixNano()
-	node2 := new(registerValue[int])
-	node2.value = 0
-	node2.timestamp = time.Now().UnixNano()
-	node3 := new(registerValue[int])
-	node3.value = 0
-	node3.timestamp = time.Now().UnixNano()
-
-	nodes["node1"] = *node1
-	nodes["node2"] = *node2
-	nodes["node3"] = *node3
-	return nodes
-}
-
 func TestMVRegisterInitialization(t *testing.T) {
-	reg := NewMVRegister("node1", initMVRegisterNodes())
+	reg := NewMVRegister("mvreg", "node1", 5)
 	for _, subValue := range reg.Value() {
-		if subValue != 0 {
-			t.Fatalf("subValue should be 0")
+		if subValue != 5 {
+			t.Fatalf("subValue should be 5")
 		}
 	}
 
 }
 
 func TestMVRegisterAssign(t *testing.T) {
-	reg := NewMVRegister("node1", initMVRegisterNodes())
+	reg := NewMVRegister("mvreg", "node1", 0)
 	reg.Assign(5)
 	if reg.Value()["node1"] != 5 {
 		t.Fatalf("value should be 5")
@@ -42,13 +24,13 @@ func TestMVRegisterAssign(t *testing.T) {
 }
 
 func TestMVRegisterMergeNoChange(t *testing.T) {
-	reg := NewMVRegister("node1", initMVRegisterNodes())
+	reg := NewMVRegister("mvreg", "node1", 0)
 	reg.Assign(5)
 	if reg.Value()["node1"] != 5 {
 		t.Fatalf("value should be 5")
 	}
 
-	reg2 := NewMVRegister("node2", initMVRegisterNodes())
+	reg2 := NewMVRegister("mvreg", "node2", 0)
 	reg.Merge(reg2)
 	if reg.Value()["node1"] != 5 {
 		t.Fatalf("reg[node1] should be 5, was %d", reg.Value()["node1"])
@@ -58,15 +40,32 @@ func TestMVRegisterMergeNoChange(t *testing.T) {
 	}
 }
 
-func TestMVRegisterMergeChange(t *testing.T) {
-	reg := NewMVRegister("node1", initMVRegisterNodes())
+func TestMVRegisterMergeMismatchedName(t *testing.T) {
+	reg := NewMVRegister("mvreg", "node1", 0)
 	reg.Assign(5)
 	if reg.Value()["node1"] != 5 {
 		t.Fatalf("value should be 5")
 	}
 
-	reg2 := NewMVRegister("node2", initMVRegisterNodes())
-	time.Sleep(1 * time.Millisecond)
+	reg2 := NewMVRegister("mvreg2", "node2", 0)
+	reg.Merge(reg2)
+	if reg.Value()["node1"] != 5 {
+		t.Fatalf("reg[node1] should be 5, was %d", reg.Value()["node1"])
+	}
+	if _, exists := reg.Value()["node2"]; exists {
+		t.Fatalf("reg[node2] should not exist since the name was mismatched")
+	}
+}
+
+func TestMVRegisterMergeChange(t *testing.T) {
+	reg := NewMVRegister("mvreg", "node1", 0)
+	reg.Assign(5)
+	if reg.Value()["node1"] != 5 {
+		t.Fatalf("value should be 5")
+	}
+
+	reg2 := NewMVRegister("mvreg", "node2", 0)
+	time.Sleep(50 * time.Millisecond)
 	reg2.Assign(10)
 	reg.Merge(reg2)
 	if reg.Value()["node1"] != 5 {
@@ -78,14 +77,14 @@ func TestMVRegisterMergeChange(t *testing.T) {
 }
 
 func TestMVRegisterMergeIdempotence(t *testing.T) {
-	reg := NewMVRegister("node1", initMVRegisterNodes())
+	reg := NewMVRegister("mvreg", "node1", 0)
 	reg.Assign(5)
 	if reg.Value()["node1"] != 5 {
 		t.Fatalf("value should be 5")
 	}
 
-	reg2 := NewMVRegister("node2", initMVRegisterNodes())
-	time.Sleep(1 * time.Millisecond)
+	reg2 := NewMVRegister("mvreg", "node2", 0)
+	time.Sleep(50 * time.Millisecond)
 	reg2.Assign(10)
 
 	reg.Merge(reg2)
