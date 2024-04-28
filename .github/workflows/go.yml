@@ -1,0 +1,46 @@
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+
+name: Go
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '0 10 * * 1' # 10:00 on Mondays
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: ['1.19', '1.20', '1.21', '1.22.x']
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ matrix.go-version }}
+
+    - name: Display Go version
+      run: go version
+
+    - name: Go Format
+      run: gofmt -s -w . && git diff --exit-code
+
+    - name: Go Vet
+      run: go vet ./...
+
+    - name: Go Tidy
+      run: go mod tidy && git diff --exit-code      
+
+    - name: Build
+      run: go build -v ./...
+
+    - name: Test
+      run: go test -v -count=1 -race -shuffle=on -coverprofile=coverage.txt ./...
