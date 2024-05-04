@@ -10,13 +10,6 @@ type MVRegister[T any] struct {
 	registers map[string]*LWWRegister[T]
 }
 
-// registerValue represents the register of a particular node within the
-// cluster.
-type registerValue[T any] struct {
-	value     T
-	timestamp int64
-}
-
 // NewMVRegister constructs a MVRegister with a value for this node set to initialValue.
 // It is assumed the name of this specific MVRegister uniquely identifies this
 // register throughout the cluster.

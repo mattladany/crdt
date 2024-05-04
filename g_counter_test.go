@@ -2,10 +2,6 @@ package crdt
 
 import "testing"
 
-func initNodes() []string {
-	return []string{"srv1", "srv2", "srv3", "srv4"}
-}
-
 func TestGCounterInitialization(t *testing.T) {
 	counter := NewGCounter("counter1", "srv1")
 	if counter.Value() != 0 {
