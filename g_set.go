@@ -1,5 +1,7 @@
 package crdt
 
+import "golang.org/x/exp/maps"
+
 // GSet is a CRDT set in which elements can only be added to it.
 // The types of elements (T) must be set on initialization.
 type GSet[T comparable] struct {
@@ -32,6 +34,11 @@ func (gset *GSet[T]) Lookup(value T) (exists bool) {
 // Size returns number of elements that currently exist within the set.
 func (gset *GSet[T]) Size() int {
 	return len(gset.set)
+}
+
+// getSet returns a slice of all the elements that currently exist within the set.
+func (gset *GSet[T]) getSet() []T {
+	return maps.Keys(gset.set)
 }
 
 // Merge adds all elements in that.set to gset.set.

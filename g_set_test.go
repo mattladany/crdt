@@ -1,6 +1,9 @@
 package crdt
 
-import "testing"
+import (
+	"slices"
+	"testing"
+)
 
 func TestGSetInitialization(t *testing.T) {
 	gset := NewGSet[int]("gset1")
@@ -30,6 +33,20 @@ func TestGSetLookupFalse(t *testing.T) {
 	gset.Add(5)
 	if gset.Lookup(10) {
 		t.Fatalf("gset lookup should have been false")
+	}
+}
+
+func TestGSetgetSet(t *testing.T) {
+	gset := NewGSet[int]("gset1")
+	gset.Add(5)
+	gset.Add(15)
+	gset.Add(26)
+	set := gset.getSet()
+	expectedSet := []int{5, 15, 26}
+	for _, e := range set {
+		if !slices.Contains(expectedSet, e) {
+			t.Fatalf("all elements in gset: %x should have been existed in: %x", set, expectedSet)
+		}
 	}
 }
 
