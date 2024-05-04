@@ -38,6 +38,17 @@ func (tpset *TwoPhaseSet[T]) Remove(value T) {
 	}
 }
 
+// RemoveIf removes each value from this tpset if fn returns true when applied
+// to each element currently in the set.
+func (tpset *TwoPhaseSet[T]) RemoveIf(fn func(value T) bool) {
+	gset := tpset.gset.getSet()
+	for _, value := range gset {
+		if fn(value) {
+			tpset.Remove(value)
+		}
+	}
+}
+
 // Lookup reports whether the T value exists within the set.
 func (tpset *TwoPhaseSet[T]) Lookup(value T) bool {
 	return tpset.gset.Lookup(value) && !tpset.tombstone.Lookup(value)

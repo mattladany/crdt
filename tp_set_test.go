@@ -57,6 +57,34 @@ func TestTPSetInvalidRemove(t *testing.T) {
 	}
 }
 
+func TestTPSetValidRemoveIf(t *testing.T) {
+	tpset := NewTwoPhaseSet[int]("tpset")
+	tpset.Add(5)
+	tpset.RemoveIf(func(value int) bool {
+		return value == 5
+	})
+	if tpset.Size() != 0 {
+		t.Fatalf("tpset size should be 0")
+	}
+	if tpset.Lookup(5) {
+		t.Fatalf("tpset lookup should have been false")
+	}
+}
+
+func TestTPSetInvalidRemoveIf(t *testing.T) {
+	tpset := NewTwoPhaseSet[int]("tpset")
+	tpset.Add(5)
+	tpset.RemoveIf(func(value int) bool {
+		return value == 10
+	})
+	if tpset.Size() != 1 {
+		t.Fatalf("tpset size should be 1")
+	}
+	if !tpset.Lookup(5) {
+		t.Fatalf("tpset lookup should have been true")
+	}
+}
+
 func TestTPSetMerge(t *testing.T) {
 	tpset := NewTwoPhaseSet[int]("tpset")
 	tpset.Add(5)
