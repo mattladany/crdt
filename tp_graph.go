@@ -32,8 +32,8 @@ func (graph *TwoPhaseGraph[T]) AddVertex(vertex T) {
 }
 
 // AddEdge will add the edge v1 -> v2 iff:
-// 	- v1 and v2 exist in the graph
-//  - v1 -> v2 has never been added to the graph before
+//   - v1 and v2 exist in the graph
+//   - v1 -> v2 has never been added to the graph before
 func (graph *TwoPhaseGraph[T]) AddEdge(v1 T, v2 T) {
 	if graph.vertices.Lookup(v1) && graph.vertices.Lookup(v2) {
 		e := edge[T]{
