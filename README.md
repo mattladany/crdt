@@ -6,4 +6,4 @@ A go implementation of State-based Conflict-free Replicated Data Types, modeled 
 
 ## To-Do's
 
-- Graph implementations
+- Fix 2P2P-Graph removeVertex and Merge
